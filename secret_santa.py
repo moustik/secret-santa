@@ -12,8 +12,10 @@ import getopt
 import os
 
 help_message = '''
-To use, fill out config.yml with your own participants. You can also specify 
+To use, fill out config.yml with your own participants. You can also specify
 DONT-PAIR so that people don't get assigned their significant other.
+
+use --ring -r to generate a single cycle list of pair [A gives to B gives to C gives to A]
 
 You'll also need to specify your mail server settings. An example is provided
 for routing mail through gmail.
@@ -88,6 +90,16 @@ def create_pairs(g, r):
     return pairs
 
 
+def create_pair_ring(g, r):
+    givers = g[:]
+    pairs = []
+
+    random.shuffle(givers)
+    pairs = [Pair(givers[i], givers[i-1]) for i in range(len(givers))]
+
+    return pairs
+
+
 class Usage(Exception):
     def __init__(self, msg):
         self.msg = msg
@@ -98,18 +110,21 @@ def main(argv=None):
         argv = sys.argv
     try:
         try:
-            opts, args = getopt.getopt(argv[1:], "shc", ["send", "help"])
+            opts, args = getopt.getopt(argv[1:], "shc", ["send", "ring", "help"])
         except getopt.error, msg:
             raise Usage(msg)
-    
+
         # option processing
         send = False
+        ring = False
         for option, value in opts:
             if option in ("-s", "--send"):
                 send = True
+            if option in ("-r", "--ring"):
+                ring = True
             if option in ("-h", "--help"):
                 raise Usage(help_message)
-                
+
         config = parse_yaml()
         for key in REQRD:
             if key not in config.keys():
@@ -137,7 +152,11 @@ def main(argv=None):
             givers.append(person)
         
         recievers = givers[:]
-        pairs = create_pairs(givers, recievers)
+        pair = None
+        if ring:
+            pairs = create_pair_ring(givers, recievers)
+        else:
+            pairs = create_pair(givers, recievers)
         if not send:
             print """
 Test pairings:
