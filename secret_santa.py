@@ -182,12 +182,12 @@ call with the --send argument:
             frm = config['FROM']
             to = pair.giver.email
             subject = config['SUBJECT'].format(santa=pair.giver.name, santee=pair.reciever.name)
-            body = (HEADER+config['MESSAGE']).format(
-                date=date, 
-                message_id=message_id, 
-                frm=frm, 
-                to=to, 
-                subject=subject,
+            body = (HEADER+config['MESSAGE'].encode('utf-8')).format(
+                date=date,
+                message_id=message_id,
+                frm=frm,
+                to=to,
+                subject=subject.encode('utf-8'),
                 santa=pair.giver.name,
                 santee=pair.reciever.name,
             )
