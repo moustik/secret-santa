@@ -156,7 +156,7 @@ def main(argv=None):
         if ring:
             pairs = create_pair_ring(givers, recievers)
         else:
-            pairs = create_pair(givers, recievers)
+            pairs = create_pairs(givers, recievers)
         if not send:
             print """
 Test pairings:
