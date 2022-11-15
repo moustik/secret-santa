@@ -65,12 +65,12 @@ class Pair:
         return "%s ---> %s" % (self.giver.name, self.reciever.name)
 
 def parse_yaml(yaml_path=CONFIG_PATH):
-    return yaml.load(open(yaml_path))
+    return yaml.safe_load(open(yaml_path))
 
 def choose_reciever(giver, recievers):
     choice = random.choice(recievers)
     if choice.name in giver.invalid_matches or giver.name == choice.name:
-        if len(recievers) is 1:
+        if len(recievers) == 1:
             raise Exception('Only one reciever left, try again')
         return choose_reciever(giver, recievers)
     else:
@@ -111,7 +111,7 @@ def main(argv=None):
     try:
         try:
             opts, args = getopt.getopt(argv[1:], "shc", ["send", "ring", "help"])
-        except getopt.error, msg:
+        except getopt.error as msg:
             raise Usage(msg)
 
         # option processing
@@ -158,7 +158,7 @@ def main(argv=None):
         else:
             pairs = create_pairs(givers, recievers)
         if not send:
-            print """
+            print("""
 Test pairings:
 
 %s
@@ -168,7 +168,7 @@ call with the --send argument:
 
     $ python secret_santa.py --send
 
-            """ % ("\n".join([str(p) for p in pairs]))
+            """ % ("\n".join([str(p) for p in pairs])))
 
         if send:
             server = smtplib.SMTP(config['SMTP_SERVER'], config['SMTP_PORT'])
@@ -182,23 +182,23 @@ call with the --send argument:
             frm = config['FROM']
             to = pair.giver.email
             subject = config['SUBJECT'].format(santa=pair.giver.name, santee=pair.reciever.name)
-            body = (HEADER+config['MESSAGE'].encode('utf-8')).format(
+            body = (HEADER+config['MESSAGE']).format(
                 date=date,
                 message_id=message_id,
                 frm=frm,
                 to=to,
-                subject=subject.encode('utf-8'),
+                subject=subject,
                 santa=pair.giver.name,
                 santee=pair.reciever.name,
             )
             if send:
-                result = server.sendmail(frm, [to], body)
-                print "Emailed %s <%s>" % (pair.giver.name, to)
+                result = server.sendmail(frm, [to], body.encode('utf-8'))
+                print("Emailed %s <%s>" % (pair.giver.name, to))
 
         if send:
             server.quit()
 
-    except Usage, err:
+    except Usage as err:
         print >> sys.stderr, sys.argv[0].split("/")[-1] + ": " + str(err.msg)
         print >> sys.stderr, "\t for help use --help"
         return 2
