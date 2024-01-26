@@ -12,6 +12,8 @@ Dependencies
 pytz
 pyyaml
 
+`python -m pip install -r requirements.txt`
+
 Usage
 -----
 
@@ -27,7 +29,7 @@ Here is the example configuration unchanged:
     # Required to connect to your outgoing mail server. Example for using gmail:
     # gmail
     SMTP_SERVER: smtp.gmail.com
-    SMTP_PORT: 587
+    SMTP_PORT: 587  # must use TLS not SSL
     USERNAME: you@gmail.com
     PASSWORD: "you're-password"
 
